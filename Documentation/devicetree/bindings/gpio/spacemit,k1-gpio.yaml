@@ -1,0 +1,116 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/gpio/spacemit,k1-gpio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SpacemiT K1 GPIO controller
+
+maintainers:
+  - Yixun Lan <dlan@gentoo.org>
+
+description:
+  The controller's registers are organized as sets of eight 32-bit
+  registers with each set of port controlling 32 pins.  A single
+  interrupt line is shared for all of the pins by the controller.
+  Each port will be represented as child nodes with the generic
+  GPIO-controller properties in this bindings file.
+
+properties:
+  $nodename:
+    pattern: "^gpio@[0-9a-f]+$"
+
+  compatible:
+    const: spacemit,k1-gpio
+
+  reg:
+    maxItems: 1
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 0
+
+patternProperties:
+  "^gpio-port@[0-9a-f]+$":
+    type: object
+    properties:
+      compatible:
+        const: spacemit,k1-gpio-port
+
+      reg:
+        maxItems: 1
+
+      gpio-controller: true
+
+      "#gpio-cells":
+        const: 2
+
+      gpio-ranges: true
+
+      interrupts:
+        maxItems: 1
+
+      interrupt-controller: true
+
+      "#interrupt-cells":
+        const: 2
+        description:
+          The first cell is the GPIO number, the second should specify interrupt
+          flag. The controller does not support level interrupts, so flags of
+          IRQ_TYPE_LEVEL_HIGH, IRQ_TYPE_LEVEL_LOW should not be used.
+          Refer <dt-bindings/interrupt-controller/irq.h> for valid flags.
+
+    required:
+      - compatible
+      - reg
+      - gpio-controller
+      - "#gpio-cells"
+
+    dependencies:
+      interrupt-controller: [ interrupts ]
+
+    additionalProperties: false
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - "#address-cells"
+  - "#size-cells"
+
+examples:
+  - |
+    gpio: gpio@d4019000 {
+      compatible = "spacemit,k1-gpio";
+      reg = <0xd4019000 0x800>;
+      #address-cells = <1>;
+      #size-cells = <0>;
+
+      port0: gpio-port@0 {
+        compatible = "spacemit,k1-gpio-port";
+        reg = <0>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        interrupt-parent = <&plic>;
+        interrupts = <58>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        gpio-ranges = <&pinctrl 0 0 32>;
+      };
+
+      port1: gpio-port@4 {
+        compatible = "spacemit,k1-gpio-port";
+        reg = <4>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        interrupt-parent = <&plic>;
+        interrupts = <58>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        gpio-ranges = <&pinctrl 0 32 32>;
+      };
+    };
+...
