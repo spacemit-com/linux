@@ -404,6 +404,61 @@
 			status = "disabled";
 		};
 
+		gpio: gpio@d4019000 {
+			compatible = "spacemit,k1-gpio";
+			reg = <0x0 0xd4019000 0x0 0x800>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port0: gpio-port@0 {
+				compatible = "spacemit,k1-gpio-port";
+				reg = <0x0>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupts = <58>;
+				interrupt-parent = <&plic>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				gpio-ranges = <&pinctrl 0 0 32>;
+			};
+
+			port1: gpio-port@4 {
+				compatible = "spacemit,k1-gpio-port";
+				reg = <0x4>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupts = <58>;
+				interrupt-parent = <&plic>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				gpio-ranges = <&pinctrl 0 32 32>;
+			};
+
+			port2: gpio-port@8 {
+				compatible = "spacemit,k1-gpio-port";
+				reg = <0x8>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupts = <58>;
+				interrupt-parent = <&plic>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				gpio-ranges = <&pinctrl 0 64 32>;
+			};
+
+			port3: gpio-port@100 {
+				compatible = "spacemit,k1-gpio-port";
+				reg = <0x100>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				interrupts = <58>;
+				interrupt-parent = <&plic>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				gpio-ranges = <&pinctrl 0 96 32>;
+			};
+		};
+
 		pinctrl: pinctrl@d401e000 {
 			compatible = "spacemit,k1-pinctrl";
 			reg = <0x0 0xd401e000 0x0 0x400>;
