@@ -612,5 +612,26 @@
 			reg-io-width = <4>;
 			status = "reserved"; /* for TEE usage */
 		};
+
+		eth0: ethernet@cac80000 {
+			compatible = "spacemit,k1x-emac";
+			reg = <0x00000000 0xCAC80000 0x00000000 0x00000420>;
+			k1x,apmu-base-reg = <0xD4282800>;
+			ctrl-reg = <0x3e4>;
+			dline-reg = <0x3e8>;
+			clocks = <&clk_apmu CLK_EMAC0_BUS>,
+				<&clk_apmu CLK_EMAC0_PTP>;
+			clock-names = "emac-clk", "ptp-clk";
+//			resets = <&reset RESET_EMAC0>;
+//			reset-names = "emac-reset";
+			interrupts = <131>;
+			interrupt-parent = <&plic>;
+			mac-address = [ 00 00 00 00 00 00 ];
+			ptp-support;
+			ptp-clk-rate = <10000000>;
+//			interconnects = <&dram_range5>;
+//			interconnect-names = "dma-mem";
+			status = "disabled";
+		};
 	};
 };

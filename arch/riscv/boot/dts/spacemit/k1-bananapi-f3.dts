@@ -47,3 +47,44 @@
 	spacemit,sdh-freq = <375000000>;
 	status = "okay";
 };
+
+&eth0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac0_cfg>;
+
+	emac,reset-gpio = <&port3 14 0>;
+	emac,reset-active-low;
+	emac,reset-delays-us = <0 10000 100000>;
+
+	/* store forward mode */
+	tx-threshold = <1518>;
+	rx-threshold = <12>;
+	tx-ring-num = <1024>;
+	rx-ring-num = <1024>;
+	dma-burst-len = <5>;
+
+	ref-clock-from-phy;
+
+	clk-tuning-enable;
+	clk-tuning-by-delayline;
+	tx-phase = <60>;
+	rx-phase = <73>;
+
+//	nvmem-cells = <&mac_address0>;
+//	nvmem-cell-names = "mac-address";
+
+	phy-handle = <&rgmii0>;
+
+	status = "okay";
+
+	mdio-bus {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		rgmii0: phy@0 {
+			compatible = "ethernet-phy-id001c.c916";
+			device_type = "ethernet-phy";
+			reg = <0x1>;
+			phy-mode = "rgmii";
+		};
+	};
+};
