@@ -513,6 +513,8 @@
 		pinctrl: pinctrl@d401e000 {
 			compatible = "spacemit,k1-pinctrl";
 			reg = <0x0 0xd401e000 0x0 0x400>;
+			clocks = <&clk_apbc CLK_AIB>, <&clk_apbc CLK_AIB_BUS>;
+			clock-names = "func", "bus";
 		};
 
 		sdhci2: sdh@d4281000 {
