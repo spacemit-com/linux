@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/spacemit,k1-ccu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Spacemit K1 SoC Clock Controller
+
+maintainers:
+  - Haylen Chu <heylenay@4d2.org>
+
+properties:
+  compatible:
+    enum:
+      - spacemit,k1-ccu-apbs
+      - spacemit,k1-ccu-mpmu
+      - spacemit,k1-ccu-apbc
+      - spacemit,k1-ccu-apmu
+
+  clocks:
+    maxItems: 4
+
+  clock-names:
+    items:
+      - const: osc
+      - const: vctcxo_1m
+      - const: vctcxo_3m
+      - const: vctcxo_24m
+
+  spacemit,mpmu:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description:
+      Phandle to the syscon managing "Main PMU (MPMU)" registers. It is used to
+      check PLL lock status.
+
+  "#clock-cells":
+    const: 1
+    description:
+      See <dt-bindings/clock/spacemit,k1-ccu.h> for valid indices.
+
+required:
+  - compatible
+  - clocks
+  - clock-names
+  - "#clock-cells"
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: spacemit,k1-ccu-apbs
+    then:
+      required:
+        - spacemit,mpmu
+    else:
+      properties:
+        spacemit,mpmu: false
+
+additionalProperties: false
