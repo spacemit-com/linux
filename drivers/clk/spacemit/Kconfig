@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config SPACEMIT_CCU
+	tristate "Clock support for Spacemit SoCs"
+	default y
+	depends on ARCH_SPACEMIT || COMPILE_TEST
+	select MFD_SYSCON
+	help
+	  Say Y to enable clock controller unit support for Spacemit SoCs.
+
+if SPACEMIT_CCU
+
+config SPACEMIT_K1_CCU
+	tristate "Support for Spacemit K1 SoC"
+	default y
+	depends on ARCH_SPACEMIT || COMPILE_TEST
+	help
+	  Support for clock controller unit in Spacemit K1 SoC.
+
+endif
