@@ -515,6 +515,18 @@
 			reg = <0x0 0xd401e000 0x0 0x400>;
 		};
 
+		sdhci2: sdh@d4281000 {
+			compatible = "spacemit,k1-x-sdhci";
+			reg = <0x0 0xd4281000 0x0 0x200>;
+			interrupts = <101>;
+			interrupt-parent = <&plic>;
+//			interconnects = <&dram_range0>;
+//			interconnect-names = "dma-mem";
+			clocks = <&clk_apmu CLK_SDH2>, <&clk_apmu CLK_SDH_AXI>;
+			clock-names = "sdh-io", "sdh-core";
+			status = "disabled";
+		};
+
 		syscon_mpmu: system-control@d4050000 {
 			compatible = "spacemit,k1-mpmu-syscon", "syscon",
 				     "simple-mfd";
