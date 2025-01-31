@@ -35,3 +35,15 @@
 	pinctrl-0 = <&uart0_2_cfg>;
 	status = "okay";
 };
+
+/* eMMC */
+&sdhci2 {
+	bus-width = <8>;
+	non-removable;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+	no-sd;
+	no-sdio;
+	spacemit,sdh-freq = <375000000>;
+	status = "okay";
+};
