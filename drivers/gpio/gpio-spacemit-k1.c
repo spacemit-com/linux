@@ -4,6 +4,7 @@
  * Copyright (c) 2025 Yixun Lan <dlan@gentoo.org>
  */
 
+#include <linux/clk.h>
 #include <linux/io.h>
 #include <linux/init.h>
 #include <linux/irq.h>
@@ -249,6 +250,7 @@ static int spacemit_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct spacemit_gpio *gpio;
+	struct clk *gpio_clk, *bus_clk;
 	struct resource *res;
 	void __iomem *regs;
 	int i, ret;
@@ -262,6 +264,14 @@ static int spacemit_gpio_probe(struct platform_device *pdev)
 	regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
 	if (IS_ERR(regs))
 		return PTR_ERR(regs);
+
+	gpio_clk = devm_clk_get_enabled(dev, "core");
+	if (IS_ERR(gpio_clk))
+		return dev_err_probe(dev, PTR_ERR(gpio_clk), "failed to get clock\n");
+
+	bus_clk = devm_clk_get_enabled(dev, "bus");
+	if (IS_ERR(bus_clk))
+		return dev_err_probe(dev, PTR_ERR(bus_clk), "failed to get bus clock\n");
 
 	ret = spacemit_gpio_get_ports(dev, gpio, regs);
 	if (ret)
