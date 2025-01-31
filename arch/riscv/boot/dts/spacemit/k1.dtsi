@@ -460,6 +460,8 @@
 			reg = <0x0 0xd4019000 0x0 0x800>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+			clocks = <&clk_apbc CLK_GPIO>, <&clk_apbc CLK_GPIO_BUS>;
+			clock-names = "core", "bus";
 
 			port0: gpio-port@0 {
 				compatible = "spacemit,k1-gpio-port";
