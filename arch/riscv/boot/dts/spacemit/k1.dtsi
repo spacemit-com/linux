@@ -369,6 +369,8 @@
 			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017000 0x0 0x100>;
 			interrupts = <42>;
+			clocks = <&clk_apbc CLK_UART0>, <&clk_apbc CLK_UART0_BUS>;
+			clock-names = "core", "bus";
 			clock-frequency = <14857000>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
@@ -439,6 +441,8 @@
 			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017700 0x0 0x100>;
 			interrupts = <50>;
+			clocks = <&clk_apbc CLK_UART8>, <&clk_apbc CLK_UART8_BUS>;
+			clock-names = "core", "bus";
 			clock-frequency = <14857000>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
