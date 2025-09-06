@@ -109,6 +109,9 @@
 #include <linux/unaligned.h>
 #include <linux/vdso_datastore.h>
 #include <net/net_namespace.h>
+#ifdef CONFIG_SPACEMIT_HMP
+#include <linux/soc/spacemit/spacemit-hmp.h>
+#endif
 
 #include <asm/io.h>
 #include <asm/setup.h>
@@ -1050,6 +1053,11 @@ void start_kernel(void)
 	maple_tree_init();
 	poking_init();
 	ftrace_init();
+
+#ifdef CONFIG_SPACEMIT_HMP
+	/* init hmp cpumask information from dts */
+	hmp_cpumask_init();
+#endif
 
 	/* trace_printk can be enabled here */
 	early_trace_init();
