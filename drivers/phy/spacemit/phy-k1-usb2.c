@@ -48,8 +48,11 @@
 #define  PHY_CLK_HSTXP_EN		BIT(3)		/* clock hstxp enable */
 #define  PHY_HSTXP_MODE			BIT(4)		/* 0: force en_txp to be 1; 1: no force */
 
-#define PHY_K1_HS_HOST_DISC		0x40
-#define  PHY_K1_HS_HOST_DISC_CLR		BIT(0)
+#define PHY_HS_HOST_DISC		0x40
+#define  PHY_HS_HOST_DISC_CLR		BIT(0)
+
+#define PHY_HS_HOST_DISC2		0x20
+#define  PHY_HS_HOST_DISC2_CLR		BIT(8)
 
 #define PHY_PLL_DIV_CFG			0x98
 #define  PHY_FDIV_FRACT_8_15		GENMASK(7, 0)
@@ -74,10 +77,15 @@
 
 #define K1_USB2PHY_RESET_TIME_MS	50
 
+struct spacemit_usb2phy_data {
+	u32 ver_disc;
+};
+
 struct spacemit_usb2phy {
 	struct phy *phy;
 	struct clk *clk;
 	struct regmap *regmap_base;
+	const struct spacemit_usb2phy_data *data;
 };
 
 static const struct regmap_config phy_regmap_config = {
@@ -147,9 +155,17 @@ static int spacemit_usb2phy_exit(struct phy *phy)
 static int spacemit_usb2phy_disconnect(struct phy *phy, int port)
 {
 	struct spacemit_usb2phy *sphy = phy_get_drvdata(phy);
+	unsigned int reg, val;
 
-	regmap_update_bits(sphy->regmap_base, PHY_K1_HS_HOST_DISC,
-			   PHY_K1_HS_HOST_DISC_CLR, PHY_K1_HS_HOST_DISC_CLR);
+	if (sphy->data->ver_disc == 0) {
+		reg = PHY_HS_HOST_DISC;
+		val = PHY_HS_HOST_DISC_CLR;
+	} else {
+		reg = PHY_HS_HOST_DISC2;
+		val = PHY_HS_HOST_DISC2_CLR;
+	}
+
+	regmap_update_bits(sphy->regmap_base, reg, val, val);
 
 	return 0;
 }
@@ -171,6 +187,8 @@ static int spacemit_usb2phy_probe(struct platform_device *pdev)
 	sphy = devm_kzalloc(dev, sizeof(*sphy), GFP_KERNEL);
 	if (!sphy)
 		return -ENOMEM;
+
+	sphy->data = of_device_get_match_data(&pdev->dev);
 
 	sphy->clk = devm_clk_get_optional_prepared(&pdev->dev, NULL);
 	if (IS_ERR(sphy->clk))
@@ -194,8 +212,17 @@ static int spacemit_usb2phy_probe(struct platform_device *pdev)
 	return PTR_ERR_OR_ZERO(phy_provider);
 }
 
+static const struct spacemit_usb2phy_data k1_usb2phy_data = {
+	.ver_disc = 0,
+};
+
+static const struct spacemit_usb2phy_data k3_usb2phy_data = {
+	.ver_disc = 1,
+};
+
 static const struct of_device_id spacemit_usb2phy_dt_match[] = {
-	{ .compatible = "spacemit,k1-usb2-phy", },
+	{ .compatible = "spacemit,k1-usb2-phy", .data = &k1_usb2phy_data },
+	{ .compatible = "spacemit,k3-usb2-phy", .data = &k3_usb2phy_data },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, spacemit_usb2phy_dt_match);
