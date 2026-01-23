@@ -172,7 +172,7 @@ static int spacemit_usb2phy_probe(struct platform_device *pdev)
 	if (!sphy)
 		return -ENOMEM;
 
-	sphy->clk = devm_clk_get_prepared(&pdev->dev, NULL);
+	sphy->clk = devm_clk_get_optional_prepared(&pdev->dev, NULL);
 	if (IS_ERR(sphy->clk))
 		return dev_err_probe(dev, PTR_ERR(sphy->clk), "Failed to get clock\n");
 
