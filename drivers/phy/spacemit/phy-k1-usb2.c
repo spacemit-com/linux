@@ -188,7 +188,7 @@ static int spacemit_usb2phy_probe(struct platform_device *pdev)
 	if (!sphy)
 		return -ENOMEM;
 
-	sphy->data = of_device_get_match_data(&pdev->dev);
+	sphy->data = device_get_match_data(&pdev->dev);
 
 	sphy->clk = devm_clk_get_optional_prepared(&pdev->dev, NULL);
 	if (IS_ERR(sphy->clk))
