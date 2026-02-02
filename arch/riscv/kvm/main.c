@@ -16,6 +16,7 @@
 #include <asm/kvm_nacl.h>
 #include <asm/sbi.h>
 #include <asm/kvm_vcpu_vector.h>
+#include <linux/soc/spacemit/spacemit-hmp.h>
 
 static DEFINE_PER_CPU(bool, kvm_riscv_virtualization_enabled);
 
@@ -40,6 +41,15 @@ long kvm_arch_dev_ioctl(struct file *filp,
 /* Initialize hypervisor CSRs - called during CPU online and non-retention idle resume */
 static void kvm_riscv_csr_init(void)
 {
+#ifdef CONFIG_SPACEMIT_HMP
+	struct cpumask	cpumask;
+	unsigned int cpu = smp_processor_id();
+
+	hmp_get_cpumask(&cpumask, HMP_REGULAR);
+	if (!cpumask_test_cpu(cpu, &cpumask))
+		return;
+#endif
+
 	csr_write(CSR_HEDELEG, 0);
 	csr_write(CSR_HIDELEG, 0);
 
@@ -52,6 +62,15 @@ static void kvm_riscv_csr_init(void)
 /* Clear hypervisor CSRs - called during CPU offline and non-retention idle entry */
 static void kvm_riscv_csr_cleanup(void)
 {
+#ifdef CONFIG_SPACEMIT_HMP
+	struct cpumask	cpumask;
+	unsigned int cpu = smp_processor_id();
+
+	hmp_get_cpumask(&cpumask, HMP_REGULAR);
+	if (!cpumask_test_cpu(cpu, &cpumask))
+		return;
+#endif
+
 	/*
 	 * After clearing the hideleg CSR, the host kernel will receive
 	 * spurious interrupts if hvip CSR has pending interrupts and the
