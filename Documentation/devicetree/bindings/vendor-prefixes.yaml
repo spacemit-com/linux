@@ -1668,6 +1668,8 @@ patternProperties:
     description: Tenstorrent AI ULC
   "^terasic,.*":
     description: Terasic Inc.
+  "^terminus,.*":
+    description: Terminus Technology Inc.
   "^tesla,.*":
     description: Tesla, Inc.
   "^test,.*":
