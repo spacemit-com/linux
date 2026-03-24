@@ -205,6 +205,35 @@
 	};
 };
 
+&pcie0_rc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie0_0_cfg>;
+	phys = <&combophy 0 PHY_TYPE_PCIE>,
+	       <&combophy 1 PHY_TYPE_PCIE>;
+	phy-names = "pcie-phy0", "pcie-phy1";
+	num-lanes = <4>;
+	status = "okay";
+};
+
+&pcie2_rc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie2_0_cfg>;
+	phys = <&combophy 2 PHY_TYPE_PCIE>,
+	       <&combophy 3 PHY_TYPE_PCIE>;
+	phy-names = "pcie-phy0", "pcie-phy1";
+	num-lanes = <2>;
+	status = "okay";
+};
+
+&pcie4_rc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie4_0_cfg>;
+	phys = <&combophy 5 PHY_TYPE_PCIE>;
+	phy-names = "pcie-phy0";
+	num-lanes = <1>;
+	status = "okay";
+};
+
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_0_cfg>;
