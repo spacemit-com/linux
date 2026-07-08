@@ -1306,4 +1306,10 @@
 			status = "reserved";
 		};
 	};
+
+	pwrc: power-controller {
+		compatible = "spacemit,k3-power-controller";
+		spacemit,apmu = <&syscon_apmu>;
+		#power-domain-cells = <1>;
+	};
 };
