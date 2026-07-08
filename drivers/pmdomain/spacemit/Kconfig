@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+menu "SpacemiT PM Domains"
+
+config SPACEMIT_PM_DOMAINS
+	bool "PM Domain driver for SpacemiT SoC"
+	depends on PM
+	depends on OF
+	depends on MFD_SYSCON
+	select PM_GENERIC_DOMAINS
+	help
+	  Say y here to enable power domain support.
+	  In order to meet high performance and low power requirements, a power
+	  domain management unit is designed to save power in SpacemiT SoC.
+
+	  If unsure, say N.
+
+endmenu
