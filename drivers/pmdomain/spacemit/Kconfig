@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+menu "SpacemiT PM Domains"
+
+config SPACEMIT_K1_PMDOMAIN
+	bool "PM Domain driver for SpacemiT K1/K3 SoC"
+	depends on PM
+	depends on OF
+	depends on MFD_SYSCON
+	select PM_GENERIC_DOMAINS
+	help
+	  PM Domain driver for SpacemiT SoC. Say Y if you want to support
+	  SpacemiT SoCs.
+
+endmenu
