@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/spacemit,power-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SpacemiT Power Domains Controller
+
+maintainers:
+  - Yixun Lan <dlan@kernel.org>
+
+description: |
+  SpacemiT processors include support for multiple power domains which can be
+  powered on/off by software based on different application scenes to save power.
+
+properties:
+  compatible:
+    enum:
+      - spacemit,k1-power-controller
+      - spacemit,k3-power-controller
+
+  '#power-domain-cells':
+    const: 1
+
+  spacemit,apmu:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description:
+      A phandle to APMU syscon to control registers for power domain
+
+required:
+  - compatible
+  - '#power-domain-cells'
+  - spacemit,apmu
+
+additionalProperties: false
+
+examples:
+  - |
+    power-controller {
+            compatible = "spacemit,k1-power-controller";
+            spacemit,apmu = <&syscon_apmu>;
+            #power-domain-cells = <1>;
+    };
