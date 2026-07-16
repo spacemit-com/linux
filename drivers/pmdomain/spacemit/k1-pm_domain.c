@@ -16,6 +16,7 @@
 #include <dt-bindings/power/spacemit,k3-power.h>
 
 #define APMU_POWER_STATUS_REG	0xf0
+#define APMU_POWER_TIMEOUT_US	10000
 
 struct spacemit_pm_domain_param {
 	int reg_pwr_ctrl;
@@ -53,48 +54,42 @@ static struct spacemit_pmu *gpmu;
 
 static int spacemit_pd_power_off(struct generic_pm_domain *domain)
 {
-	unsigned int val;
-	int loop;
 	struct spacemit_pm_domain *spd = container_of(domain, struct spacemit_pm_domain, genpd);
 	const struct spacemit_pm_domain_param *p = spd->param;
+	unsigned int val;
+	int ret;
 
 	if (!spd->param->use_hw) {
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val &= ~(1 << p->bit_isolation);
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+		regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, BIT(p->bit_isolation));
+		fsleep(15);
 
-		usleep_range(10, 15);
+		val = BIT(p->bit_sleep1) | BIT(p->bit_sleep2);
+		regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
+		fsleep(15);
 
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val &= ~((1 << p->bit_sleep1) | (1 << p->bit_sleep2));
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
-
-		usleep_range(10, 15);
-
-		for (loop = 10000; loop >= 0; --loop) {
-			regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-			if ((val & (1 << p->bit_pwr_stat)) == 0)
-				break;
-			usleep_range(4, 6);
-		}
+		ret = regmap_read_poll_timeout(gpmu->regmap,
+					       APMU_POWER_STATUS_REG,
+					       val,
+					       !(val & BIT(p->bit_pwr_stat)),
+					       1,
+					       APMU_POWER_TIMEOUT_US);
 	} else {
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val &= ~(1 << p->bit_auto_pwr_on);
-		val &= ~(1 << p->bit_hw_mode);
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+		val = BIT(p->bit_auto_pwr_on) | BIT(p->bit_hw_mode);
+		regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
 
-		usleep_range(10, 30);
+		fsleep(15);
 
-		for (loop = 10000; loop >= 0; --loop) {
-			regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-			if ((val & (1 << p->bit_hw_pwr_stat)) == 0)
-				break;
-			usleep_range(4, 6);
-		}
+		ret = regmap_read_poll_timeout(gpmu->regmap,
+					       APMU_POWER_STATUS_REG,
+					       val,
+					       !(val & BIT(p->bit_hw_pwr_stat)),
+					       1,
+					       APMU_POWER_TIMEOUT_US);
 	}
 
-	if (loop < 0) {
-		dev_err(&domain->dev, "Fail to power-off domain: %d\n", spd->pm_index);
+	if (ret) {
+		dev_err(&domain->dev, "Fail to power-off domain: %d\n",
+				spd->pm_index);
 		return -EBUSY;
 	}
 
@@ -103,96 +98,85 @@ static int spacemit_pd_power_off(struct generic_pm_domain *domain)
 
 static int spacemit_pd_power_on(struct generic_pm_domain *domain)
 {
-	int loop;
-	unsigned int val;
 	struct spacemit_pm_domain *spd = container_of(domain, struct spacemit_pm_domain, genpd);
 	const struct spacemit_pm_domain_param *p = spd->param;
+	unsigned int val;
+	int ret;
 
 	regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-	if (val & (1 << p->bit_pwr_stat)) {
+	if (val & BIT(p->bit_pwr_stat)) {
 		if (!p->use_hw) {
-			regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-			val &= ~(1 << p->bit_isolation);
-			regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+			val = BIT(p->bit_isolation);
+			regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
 
-			usleep_range(10, 15);
+			fsleep(15);
 
-			regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-			val &= ~((1 << p->bit_sleep1) | (1 << p->bit_sleep2));
-			regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+			val = BIT(p->bit_sleep1) | BIT(p->bit_sleep2);
+			regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
 
-			usleep_range(10, 15);
+			fsleep(15);
 
-			for (loop = 10000; loop >= 0; --loop) {
-				regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-				if ((val & (1 << p->bit_pwr_stat)) == 0)
-					break;
-				usleep_range(4, 6);
-			}
+			ret = regmap_read_poll_timeout(gpmu->regmap,
+						       APMU_POWER_STATUS_REG,
+						       val,
+						       !(val & BIT(p->bit_pwr_stat)),
+						       1,
+						       APMU_POWER_TIMEOUT_US);
 		} else {
-			regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-			val &= ~(1 << p->bit_auto_pwr_on);
-			val &= ~(1 << p->bit_hw_mode);
-			regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+			val = BIT(p->bit_auto_pwr_on) | BIT(p->bit_hw_mode);
+			regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
 
-			usleep_range(10, 30);
+			fsleep(30);
 
-			for (loop = 10000; loop >= 0; --loop) {
-				regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-				if ((val & (1 << p->bit_hw_pwr_stat)) == 0)
-					break;
-				usleep_range(4, 6);
-			}
+			ret = regmap_read_poll_timeout(gpmu->regmap,
+						       APMU_POWER_STATUS_REG,
+						       val,
+						       !(val & BIT(p->bit_hw_pwr_stat)),
+						       1,
+						       APMU_POWER_TIMEOUT_US);
 		}
 
-		if (loop < 0) {
+		if (ret < 0) {
 			dev_err(&domain->dev, "power-off domain: %d, error\n", spd->pm_index);
 			return -EBUSY;
 		}
 	}
 
 	if (!p->use_hw) {
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val |= (1 << p->bit_sleep1);
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+		regmap_set_bits(gpmu->regmap, p->reg_pwr_ctrl, BIT(p->bit_sleep1));
 
-		usleep_range(20, 25);
+		fsleep(20);
 
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val |= (1 << p->bit_sleep2) | (1 << p->bit_sleep1);
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+		val = BIT(p->bit_sleep2) | BIT(p->bit_sleep1);
+		regmap_set_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
 
-		usleep_range(20, 25);
+		fsleep(20);
 
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val |= (1 << p->bit_isolation);
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+		regmap_set_bits(gpmu->regmap, p->reg_pwr_ctrl, BIT(p->bit_isolation));
 
-		usleep_range(10, 15);
+		fsleep(15);
 
-		for (loop = 10000; loop >= 0; --loop) {
-			regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-			if (val & (1 << p->bit_pwr_stat))
-				break;
-			usleep_range(4, 6);
-		}
+		ret = regmap_read_poll_timeout(gpmu->regmap,
+					       APMU_POWER_STATUS_REG,
+					       val,
+					       (val & BIT(p->bit_pwr_stat)),
+					       1,
+					       APMU_POWER_TIMEOUT_US);
 	} else {
-		regmap_read(gpmu->regmap, p->reg_pwr_ctrl, &val);
-		val |= (1 << p->bit_auto_pwr_on);
-		val |= (1 << p->bit_hw_mode);
-		regmap_write(gpmu->regmap, p->reg_pwr_ctrl, val);
+		val = BIT(p->bit_auto_pwr_on) | BIT(p->bit_hw_mode);;
+		regmap_set_bits(gpmu->regmap, p->reg_pwr_ctrl, val);
 
-		usleep_range(290, 310);
+		fsleep(300);
 
-		for (loop = 10000; loop >= 0; --loop) {
-			regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
-			if (val & (1 << p->bit_hw_pwr_stat))
-				break;
-			usleep_range(4, 6);
-		}
+		ret = regmap_read_poll_timeout(gpmu->regmap,
+					       APMU_POWER_STATUS_REG,
+					       val,
+					       (val & BIT(p->bit_hw_pwr_stat)),
+					       1,
+					       APMU_POWER_TIMEOUT_US);
 	}
 
-	if (loop < 0) {
+	if (ret < 0) {
 		dev_err(&domain->dev, "power-on domain: %d, error\n", spd->pm_index);
 		return -EBUSY;
 	}
@@ -207,7 +191,7 @@ static bool spacemit_pm_get_state(struct spacemit_pmu *pmu,
 
 	regmap_read(pmu->regmap, APMU_POWER_STATUS_REG, &reg);
 
-	return reg & (1 << pd->param->bit_pwr_stat);
+	return !!(reg & BIT(pd->param->bit_pwr_stat));
 }
 
 static int spacemit_pm_add_one_domain(struct spacemit_pmu *pmu, int id,
@@ -453,7 +437,7 @@ static const struct of_device_id spacemit_pm_domain_dt_match[] = {
 		.compatible = "spacemit,k3-power-controller",
 		.data = &k3_of_data,
 	},
-	{ },
+	{ /* sentinel */ },
 };
 
 static struct platform_driver spacemit_pm_domain_driver = {
