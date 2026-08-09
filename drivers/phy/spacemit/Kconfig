@@ -39,3 +39,15 @@ config PHY_SPACEMIT_K3_COMBO_PHY
 	  driver takes care of enabling and clock setup and will be used
 	  by K3 dwc3 driver.
 	  If unsure, say N.
+config PHY_SPACEMIT_K3_INNO_DP
+	tristate "SpacemiT K3 Innosilicon DisplayPort PHY driver"
+	depends on (ARCH_SPACEMIT || COMPILE_TEST) && OF
+	depends on COMMON_CLK
+	select GENERIC_PHY
+	select REGMAP
+	help
+	  Enable support for the Innosilicon DisplayPort transmit PHY
+	  integrated in the SpacemiT K3 SoC. The PHY shares its MMIO window
+	  with its parent DP/eDP controller (drivers/gpu/drm/spacemit/) and
+	  exposes lane / rate / vswing / pre-emphasis control through the
+	  generic PHY framework.
