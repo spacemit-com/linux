@@ -16,3 +16,22 @@ config DRM_SPACEMIT
 	  DisplayPort or embedded DisplayPort controller.
 
 	  If M is selected the module will be called spacemit-drm.
+
+config SPACEMIT_INNO_DP
+	tristate "SpacemiT Innosilicon DP/eDP controller support"
+	depends on DRM_SPACEMIT
+	imply PHY_SPACEMIT_K3_INNO_DP
+	select GENERIC_PHY
+	select DRM_PANEL
+	select DRM_BRIDGE_CONNECTOR
+	select DRM_DISPLAY_HELPER
+	select DRM_DISPLAY_DP_HELPER
+	select DRM_DISPLAY_DP_AUX_BUS
+	help
+	  Choose this option to enable the Innosilicon DisplayPort /
+	  embedded DisplayPort transmitter integrated in SpacemiT SoCs.
+	  The controller sits downstream of the Saturn DPU and drives an
+	  eDP panel (discovered over the DP AUX bus) or an external
+	  DisplayPort connector.
+
+	  If M is selected the module will be called spacemit-inno-dp.
