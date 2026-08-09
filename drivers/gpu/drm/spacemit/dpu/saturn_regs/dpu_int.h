@@ -1,0 +1,25 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) 2025-2026 SpacemiT Co., Ltd.
+ *
+ */
+
+#ifndef DPU_INT_REG_H
+#define DPU_INT_REG_H
+
+#include <linux/bits.h>
+
+#define DPU_INT_CMDLIST_CH_FRM_CFG_DONE_MASK	(0xff)
+#define DPU_INT_CMDLIST_CH_FRM_CFG_DONE		(DPU_INT_CMDLIST_CH_FRM_CFG_DONE_MASK << 11)
+#define DPU_INT_FRM_TIMING_UNFLOW		BIT(8)
+#define DPU_INT_CFG_RDY_CLR			BIT(5)
+#define DPU_INT_FRM_TIMING_CFG_LINE		BIT(4)
+#define DPU_INT_FRM_TIMING_CFG_EOF		(BIT(2) | BIT(3))
+#define DPU_INT_FRM_TIMING_EOF			BIT(1)
+#define DPU_INT_FRM_TIMING_VSYNC		BIT(0)
+#define DPU_REST_INT_BITS			(DPU_INT_FRM_TIMING_CFG_EOF | \
+						 DPU_INT_FRM_TIMING_CFG_LINE | \
+						 DPU_INT_FRM_TIMING_EOF | \
+						 DPU_INT_CMDLIST_CH_FRM_CFG_DONE)
+
+#endif
