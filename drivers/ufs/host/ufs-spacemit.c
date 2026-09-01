@@ -663,7 +663,7 @@ static const struct ufs_hba_variant_ops ufs_hba_spacemit_vops = {
 	.hibern8_notify = ufs_spacemit_hibern8_notify,
 };
 
-static const struct of_device_id ufs_spacemit_of_match[] = {
+static const struct of_device_id __maybe_unused ufs_spacemit_of_match[] = {
 	{ .compatible = "spacemit,k3-ufshc" },
 	{ /* sentinel */ },
 };
