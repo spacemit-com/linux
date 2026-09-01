@@ -453,6 +453,7 @@ static int ufs_spacemit_apply_dev_quirks(struct ufs_hba *hba)
 		{ UIC_ARG_MIB_SEL(TX_MIN_ACTIVATETIME, UIC_ARG_MPHY_TX_GEN_SEL_INDEX(1)), 0x0 },
 		{ UIC_ARG_MIB(ANA_HSGEAR_CTRL_ATTR), 0x25 },
 	};
+	int err;
 
 	if (hba->dev_quirks & UFS_DEVICE_QUIRK_HOST_PA_SAVECONFIGTIME)
 		ufs_spacemit_quirk_host_pa_saveconfigtime(hba);
@@ -460,7 +461,9 @@ static int ufs_spacemit_apply_dev_quirks(struct ufs_hba *hba)
 	if (hba->dev_info.wmanufacturerid == UFS_VENDOR_WDC)
 		hba->dev_quirks |= UFS_DEVICE_QUIRK_HOST_PA_TACTIVATE;
 
-	ufs_spacemit_dme_set(hba, setup_attrs, ARRAY_SIZE(setup_attrs));
+	err = ufs_spacemit_dme_set(hba, setup_attrs, ARRAY_SIZE(setup_attrs));
+	if (err < 0)
+		return err;
 
 	return ufs_spacemit_wait_mphy_pll_lock(hba);
 }
