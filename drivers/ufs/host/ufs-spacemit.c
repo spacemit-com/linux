@@ -58,8 +58,9 @@
 /* PHY register magic values */
 #define MPHY_PU_ALL			0x87f
 #define MPHY_PU_WITH_HB8_RESET		0xb7f
-#define MPHY_DEVICE_RESET_DEASSERT	0x101
-#define MPHY_DEVICE_RESET_ASSERT	0x001
+#define MPHY_DEVICE_REFCLK_OE		BIT(8)
+#define MPHY_DEVICE_HW_RESET		BIT(0)
+
 #define MPHY_PLL_LOCK_BIT		BIT(31)
 #define MPHY_PLL_LOCK_TIMEOUT_US	10000
 
@@ -518,8 +519,9 @@ static int ufs_spacemit_device_reset(struct ufs_hba *hba)
 	ufshcd_writel(hba, 0x000, UFS_PHY_MNG_BASE + UFS_DEVICE_IO_CTRL);
 	usleep_range(10, 15);
 
-	/* Enable device ref_clk & de-asserted ufs device reset */
-	ufshcd_writel(hba, MPHY_DEVICE_RESET_DEASSERT, UFS_PHY_MNG_BASE + UFS_DEVICE_IO_CTRL);
+	/* Enable reference clock & deassert ufs device reset */
+	ufshcd_writel(hba, MPHY_DEVICE_REFCLK_OE | MPHY_DEVICE_HW_RESET,
+		      UFS_PHY_MNG_BASE + UFS_DEVICE_IO_CTRL);
 	usleep_range(10, 15);
 
 	return 0;
@@ -567,8 +569,8 @@ static void ufs_spacemit_pre_hibern8(struct ufs_hba *hba, enum uic_cmd_dme cmd)
 	int ret;
 
 	if (cmd == UIC_CMD_DME_HIBER_EXIT) {
-		/* Enable reference clock */
-		ufshcd_writel(hba, MPHY_DEVICE_RESET_DEASSERT,
+		/* Enable reference clock & deassert ufs device reset */
+		ufshcd_writel(hba, MPHY_DEVICE_REFCLK_OE | MPHY_DEVICE_HW_RESET,
 			      UFS_PHY_MNG_BASE + UFS_DEVICE_IO_CTRL);
 
 		/* Power up all */
@@ -616,7 +618,7 @@ static void ufs_spacemit_post_hibern8(struct ufs_hba *hba, enum uic_cmd_dme cmd)
 		ufshcd_writel(hba, 0x0, UFS_PHY_MNG_BASE + UFS_MPHY_PU_CTRL);
 
 		/* Keep reference clock enabled, assert device reset */
-		ufshcd_writel(hba, MPHY_DEVICE_RESET_ASSERT,
+		ufshcd_writel(hba, MPHY_DEVICE_REFCLK_OE,
 			      UFS_PHY_MNG_BASE + UFS_DEVICE_IO_CTRL);
 	}
 }
