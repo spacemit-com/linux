@@ -5,6 +5,8 @@
  */
 
 #include <dt-bindings/clock/spacemit,k3-clocks.h>
+#include <dt-bindings/power/spacemit,k3-power.h>
+#include <dt-bindings/reset/spacemit,k3-resets.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/reset/spacemit,k3-resets.h>
 #include <dt-bindings/phy/phy.h>
@@ -533,6 +535,21 @@
 						 /bits/ 64 <19200000>;
 				};
 			};
+		};
+
+		gpu: gpu@cac00000 {
+			compatible = "spacemit,k3-gpu", "img,img-bxm-4-64",
+				     "img,img-rogue";
+			reg = <0x0 0xcac00000 0x0 0x80000>;
+			interrupt-parent = <&saplic>;
+			interrupts = <75 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&pwrc K3_PMDOMAIN_GPU>;
+			clocks = <&syscon_apmu CLK_APMU_GPU>;
+			clock-names = "core";
+			resets = <&syscon_apmu RESET_APMU_GPU>;
+			assigned-clocks = <&syscon_apmu CLK_APMU_GPU>;
+			assigned-clock-rates = <1228000000>;
+			status = "okay";
 		};
 
 		eth0: ethernet@cac80000 {

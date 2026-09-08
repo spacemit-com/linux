@@ -7,6 +7,7 @@
  */
 
 #include <dt-bindings/clock/spacemit,k3-clocks.h>
+#include <dt-bindings/power/spacemit,k3-power.h>
 #include <dt-bindings/reset/spacemit,k3-resets.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
@@ -17,6 +18,7 @@
 		interrupts = <90 IRQ_TYPE_LEVEL_HIGH>,
 			     <89 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "online", "offline";
+		power-domains = <&pwrc K3_PMDOMAIN_LCD0>;
 		clocks = <&syscon_apmu CLK_APMU_LCD_PXCLK>,
 			 <&syscon_apmu CLK_APMU_LCD_MCLK>,
 			 <&syscon_apmu CLK_APMU_DPU_ACLK>,
@@ -49,6 +51,7 @@
 		compatible = "spacemit,k3-inno-dp";
 		reg = <0x0 0xcac84000 0x0 0x4000>;
 		interrupts = <132 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&pwrc K3_PMDOMAIN_LCD0>;
 		clocks = <&syscon_apmu CLK_APMU_EDP0_PXCLK>, <&edp0_phy>;
 		clock-names = "pxclk", "pll";
 		resets = <&syscon_apmu RESET_APMU_EDP0>;
@@ -88,6 +91,7 @@
 		interrupts = <139 IRQ_TYPE_LEVEL_HIGH>,
 			     <138 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "online", "offline";
+		power-domains = <&pwrc K3_PMDOMAIN_LCD1>;
 		clocks = <&syscon_apmu CLK_APMU_DSI4LN2_LCD_PXCLK>,
 			 <&syscon_apmu CLK_APMU_DSI4LN2_LCD_MCLK>,
 			 <&syscon_apmu CLK_APMU_DSI4LN2_DPU_ACLK>,
@@ -120,6 +124,7 @@
 		compatible = "spacemit,k3-inno-dp";
 		reg = <0x0 0xcac88000 0x0 0x4000>;
 		interrupts = <140 IRQ_TYPE_LEVEL_HIGH>;
+		power-domains = <&pwrc K3_PMDOMAIN_LCD1>;
 		clocks = <&syscon_apmu CLK_APMU_EDP1_PXCLK>, <&dp1_phy>;
 		clock-names = "pxclk", "pll";
 		resets = <&syscon_apmu RESET_APMU_EDP1>;
