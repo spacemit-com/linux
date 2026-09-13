@@ -10775,6 +10775,7 @@ out:
 	trace_ufshcd_system_suspend(hba, ret,
 		ktime_to_us(ktime_sub(ktime_get(), start)),
 		hba->curr_dev_pwr_mode, hba->uic_link_state);
+	dev_info(dev, "dnx: %s execute\n", __func__);
 	return ret;
 }
 EXPORT_SYMBOL(ufshcd_system_suspend);
@@ -10804,6 +10805,7 @@ out:
 		ktime_to_us(ktime_sub(ktime_get(), start)),
 		hba->curr_dev_pwr_mode, hba->uic_link_state);
 
+	dev_info(dev, "dnx: %s exit\n", __func__);
 	return ret;
 }
 EXPORT_SYMBOL(ufshcd_system_resume);
