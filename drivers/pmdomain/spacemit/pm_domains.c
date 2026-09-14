@@ -59,6 +59,8 @@ static int spacemit_pd_power_off(struct generic_pm_domain *domain)
 	unsigned int val;
 	int ret;
 
+	pr_info("dnx: power off\n");
+
 	if (!spd->param->use_hw) {
 		regmap_clear_bits(gpmu->regmap, p->reg_pwr_ctrl, BIT(p->bit_isolation));
 		fsleep(15);
@@ -101,6 +103,7 @@ static int spacemit_pd_power_on(struct generic_pm_domain *domain)
 	unsigned int val;
 	int ret = 0;
 
+	pr_info("dnx: power on\n");
 	regmap_read(gpmu->regmap, APMU_POWER_STATUS_REG, &val);
 
 	if (!p->use_hw && (val & BIT(p->bit_pwr_stat))) {
